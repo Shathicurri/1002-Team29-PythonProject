@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # initalise the tkinter GUI
 root = tk.Tk()
 
-root.title("Digital Crime Analyzer")
+root.title("Digital Crime Analyzer") # title of the application
 root.geometry("700x700") # set the root dimensions
 root.pack_propagate(False) # tells the root to not let the widgets inside it determine its size.
 root.resizable(0, 0) # makes the root window fixed in size.
