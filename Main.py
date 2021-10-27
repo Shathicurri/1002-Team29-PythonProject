@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 
 # initalise the tkinter GUI
 root = tk.Tk()
-output = []
 
 root.title("Digital Crime Analyzer")
 root.geometry("700x700") # set the root dimensions
@@ -127,7 +126,7 @@ def Load_excel_data():
         tk.messagebox.showerror("Information", "The file you have chosen is invalid")
         return None
     except FileNotFoundError:
-        tk.messagebox.showerror("Information", f"No such file as {file_path}")
+        tk.messagebox.showerror("Information", f"No available file is found.")
         return None
 
     tv1["column"] = list(df.columns)
@@ -170,108 +169,126 @@ def clear_data():
 def Search():
     """"This function will search according to the text from the entrybox"""
     
-    clear_data()
+    try:
+        clear_data()
 
-    df = pd.read_csv(label_file["text"])
+        df = pd.read_csv(label_file["text"])
 
-    data1 = entry1.get()
-    data2 = entry2.get()
+        data1 = entry1.get()
+        data2 = entry2.get()
 
-    if data1 != "" and data2 != "":
-        df_filter = df.loc[df['Dst Port'] == int(data1)]
-        df_filter = df_filter.loc[df_filter['Protocol'] == int(data2)]
-        df_rows = df_filter.to_numpy().tolist()  # turns the dataframe into a list of lists
-        for row in df_rows:
-            tv1.insert("", "end",
-                       values=row)  # inserts each list into the treeview. For parameters see https://docs.python.org/3/library/tkinter.ttk.html#tkinter.ttk.Treeview.insert
+        if data1 != "" and data2 != "":
+            df_filter = df.loc[df['Dst Port'] == int(data1)]
+            df_filter = df_filter.loc[df_filter['Protocol'] == int(data2)]
+            df_rows = df_filter.to_numpy().tolist()  # turns the dataframe into a list of lists
+            for row in df_rows:
+                tv1.insert("", "end",
+                           values=row)  # inserts each list into the treeview. For parameters see https://docs.python.org/3/library/tkinter.ttk.html#tkinter.ttk.Treeview.insert
 
-    elif data1 != "":
-        df_filter = df.loc[df['Dst Port'] == int(data1)]
-        df_rows = df_filter.to_numpy().tolist()  # turns the dataframe into a list of lists
-        for row in df_rows:
-            tv1.insert("", "end",
-                            values=row)  # inserts each list into the treeview. For parameters see https://docs.python.org/3/library/tkinter.ttk.html#tkinter.ttk.Treeview.insert
-    elif data2 != "":
-        df_filter = df.loc[df['Protocol'] == int(data2)]
-        df_rows = df_filter.to_numpy().tolist()  # turns the dataframe into a list of lists
-        for row in df_rows:
-            tv1.insert("", "end",
-                            values=row)
-    else:
-        tk.messagebox.showerror(title="Invalid", message="Invalid Input")
+        elif data1 != "":
+            df_filter = df.loc[df['Dst Port'] == int(data1)]
+            df_rows = df_filter.to_numpy().tolist()  # turns the dataframe into a list of lists
+            for row in df_rows:
+                tv1.insert("", "end",
+                                values=row)  # inserts each list into the treeview. For parameters see https://docs.python.org/3/library/tkinter.ttk.html#tkinter.ttk.Treeview.insert
+        elif data2 != "":
+            df_filter = df.loc[df['Protocol'] == int(data2)]
+            df_rows = df_filter.to_numpy().tolist()  # turns the dataframe into a list of lists
+            for row in df_rows:
+                tv1.insert("", "end",
+                                values=row)
+        else:
+            tk.messagebox.showerror(title="Invalid", message="Invalid Input")
+    except:
+        tk.messagebox.showerror(title="File Not Found", message="No files has been selected.")
 
 
 def Bar_Graph():
     """"This function plots the bar graph as well as displays it"""
     
-    graph_data = pd.DataFrame(np.array(output))
-    graph_data.columns = ['Prediction', 'Protocol', 'Dst Port',  'Timestamp']
+    if len(tv2.get_children()) < 1:
+        messagebox.showerror("No Data!", "No data available to display")
+        return None
+    else:
+        graph_data = pd.DataFrame(np.array(output))
+        graph_data.columns = ['Prediction', 'Protocol', 'Dst Port',  'Timestamp']
+        
+        exclude = ['Benign']
+        newdf = graph_data[~graph_data.Prediction.isin(exclude)]
 
-    # Counting each row and converting to list
-    x_axis = graph_data['Dst Port'].value_counts().keys().tolist()
-    y_axsis = graph_data['Dst Port'].value_counts().tolist()
+        # Counting each row and converting to list
+        x_axis = newdf['Dst Port'].value_counts().keys().tolist()
+        y_axsis = newdf['Dst Port'].value_counts().tolist()
 
-    fig, ax = plt.subplots(figsize=(8,5))
-    ax.set_title('Number of Attack on Ports', fontsize=22)  # Title of Chart
-    ax.set_ylabel('# of Attack')  # Y-Axis label for Bar graph
-    ax.set_xlabel('Destination Ports')  # X-Axis label for Bar graph
-    ax.bar(x_axis[:5], y_axsis[:5])
-    plt.show()
+        fig, ax = plt.subplots(figsize=(8,5))
+        ax.set_title('Number of Attack on Ports', fontsize=22)  # Title of Chart
+        ax.set_ylabel('# of Attack')  # Y-Axis label for Bar graph
+        ax.set_xlabel('Destination Ports')  # X-Axis label for Bar graph
+        ax.bar(x_axis[:5], y_axsis[:5])
+        plt.show()
 
 
 def Pie_chart():
     """This function plots the pie chart as well as displays it"""
     
-    graph_data = pd.DataFrame(np.array(output))
-    graph_data.columns = ['Prediction', 'Protocol', 'Dst Port', 'Timestamp']
-    
-    # Excluded Benign from the attacks
-    exclude = ['Benign']
-    newdf = graph_data[~graph_data.Prediction.isin(exclude)]
-    
-    # Counting each row and converting to list
-    attack = newdf['Prediction'].value_counts().keys().tolist()
-    count = newdf['Prediction'].value_counts().tolist()
+    if len(tv2.get_children()) < 1:
+        messagebox.showerror("No Data!", "No data available to display")
+        return None
+    else:
+        graph_data = pd.DataFrame(np.array(output))
+        graph_data.columns = ['Prediction', 'Protocol', 'Dst Port', 'Timestamp']
 
-    fig, ax = plt.subplots(figsize=(8,5))
-    ax.set_title('Number of Each Cyber Attack', fontsize=22)  # Title of Chart
+        # Excluded Benign from the attacks
+        exclude = ['Benign']
+        newdf = graph_data[~graph_data.Prediction.isin(exclude)]
 
-    # Plot of Pie Chart (Consist of All attacks)
-    ax.pie(count, autopct=lambda p: '({:.0f})'.format(p * sum(count) / 100), startangle=90)
+        # Counting each row and converting to list
+        attack = newdf['Prediction'].value_counts().keys().tolist()
+        count = newdf['Prediction'].value_counts().tolist()
 
-    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
-    plt.legend(labels=attack)  # Legend for Pie and Donut Chart
-    plt.show()
+        fig, ax = plt.subplots(figsize=(8,5))
+        ax.set_title('Number of Each Cyber Attack', fontsize=22)  # Title of Chart
+
+        # Plot of Pie Chart (Consist of All attacks)
+        ax.pie(count, autopct=lambda p: '({:.0f})'.format(p * sum(count) / 100), startangle=90)
+
+        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+        plt.legend(labels=attack)  # Legend for Pie and Donut Chart
+        plt.show()
 
 def Donut_chart():
     """This function plots the donut chart as well as displays it"""
     
-    graph_data = pd.DataFrame(np.array(output))
-    graph_data.columns = ['Prediction', 'Protocol', 'Dst Port', 'Timestamp']
+    if len(tv2.get_children()) < 1:
+        messagebox.showerror("No Data!", "No data available to display")
+        return None
+    else:
+        graph_data = pd.DataFrame(np.array(output))
+        graph_data.columns = ['Prediction', 'Protocol', 'Dst Port', 'Timestamp']
 
-    # Excluded Benign from the attacks
-    exclude = ['Benign']
-    newdf = graph_data[~graph_data.Prediction.isin(exclude)]
-    
-    # Counting each row and converting to list
-    attack = newdf['Prediction'].value_counts().keys().tolist()
-    count = newdf['Prediction'].value_counts().tolist()
+        # Excluded Benign from the attacks
+        exclude = ['Benign']
+        newdf = graph_data[~graph_data.Prediction.isin(exclude)]
 
-    fig, ax = plt.subplots(figsize=(8,5))
-    ax.set_title('Number of Each Cyber Attack', fontsize=22)  # Title of Chart
+        # Counting each row and converting to list
+        attack = newdf['Prediction'].value_counts().keys().tolist()
+        count = newdf['Prediction'].value_counts().tolist()
 
-    # Plot of Donut Chart (Consist of Top 5 attacks)
-    ax.pie(count[:5], autopct=lambda p: '({:.0f})'.format(p * sum(count[:5]) / 100), startangle=90)
+        fig, ax = plt.subplots(figsize=(8,5))
+        ax.set_title('Number of Each Cyber Attack', fontsize=22)  # Title of Chart
 
-    # Making Pie Chart into a Donut
-    centre_circle = plt.Circle((0, 0), 0.70, fc='white')
-    fig = plt.gcf()
-    fig.gca().add_artist(centre_circle)
+        # Plot of Donut Chart (Consist of Top 5 attacks)
+        ax.pie(count[:5], autopct=lambda p: '({:.0f})'.format(p * sum(count[:5]) / 100), startangle=90)
 
-    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+        # Making Pie Chart into a Donut
+        centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+        fig = plt.gcf()
+        fig.gca().add_artist(centre_circle)
 
-    plt.legend(labels=attack[:5])  # Legend for Pie and Donut Chart
-    plt.show()
+        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+
+        plt.legend(labels=attack[:5])  # Legend for Pie and Donut Chart
+        plt.show()
 
 def Prediction():
     """"This function load the model from Tensorflow and display it"""
