@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 root = tk.Tk()
 output = []
 
+root.title("Digital Crime Analyzer")
 root.geometry("700x700") # set the root dimensions
 root.pack_propagate(False) # tells the root to not let the widgets inside it determine its size.
 root.resizable(0, 0) # makes the root window fixed in size.
@@ -29,15 +30,15 @@ frame1 = tk.LabelFrame(tab1, text="Excel Data")
 frame1.place(height=250, width=700)
 
 frame3 = tk.LabelFrame(tab2, text="Prediction")
-frame3.place(height=500, width=700)
+frame3.place(height=450, width=700)
 
 # Frame for Graph buttons
 frame2 = tk.LabelFrame(tab2, text="Graph")
-frame2.place(height=100, width=700, rely=0.6, relx=0)
+frame2.place(height=100, width=700, rely=0.7, relx=0)
 
 # Frame for open file dialog
 file_frame = tk.LabelFrame(tab1, text="Open File")
-file_frame.place(height=300, width=400, rely=0.4, relx=0)
+file_frame.place(height=300, width=400, rely=0.4, relx=0.2)
 
 # Buttons
 button1 = tk.Button(file_frame, text="Browse A File", command=lambda: File_dialog())
@@ -47,26 +48,33 @@ button2 = tk.Button(file_frame, text="Load File", command=lambda: Load_excel_dat
 button2.place(rely=0.20, relx=0.30)
 
 buttonExport = tk.Button(tab2, text="Export File", command=lambda: Export_excel_data())
-buttonExport.place(height=35,width=200, rely=0.80, relx=0.30)
+buttonExport.place(height=35,width=200, rely=0.90, relx=0.33)
 
 buttonGet = tk.Button(file_frame, text="Search", command=lambda: Search())
-buttonGet.place(rely=0.50, relx=0.65)
+buttonGet.place(rely=0.56, relx=0.65)
 
 buttonBar = tk.Button(frame2, text="Bar Graph", command=lambda: Bar_Graph())
-buttonBar.place(rely=0.30, relx=0.30)
+buttonBar.place(rely=0.30, relx=0.2)
 
 buttonPie = tk.Button(frame2, text="Pie Chart", command=lambda: Pie_chart())
-buttonPie.place(rely=0.30, relx=0.50)
+buttonPie.place(rely=0.30, relx=0.45)
 
 buttonDonut = tk.Button(frame2, text="Donut Chart", command=lambda: Donut_chart())
-buttonDonut.place(rely=0.30, relx=0.80)
+buttonDonut.place(rely=0.30, relx=0.70)
 
 # Take in values entered for Search function
 # Entry
+label_dst = tk.Label(file_frame, text="Dst Port")
+label_dst.place(rely=0.54, relx=0.10)
+
 entry1 = tk.Entry(file_frame)
-entry1.place(rely=0.50, relx=0.30)
+entry1.place(rely=0.54, relx=0.30)
+
+label_ptl = tk.Label(file_frame, text="Protocol")
+label_ptl.place(rely=0.62, relx=0.10)
+
 entry2 = tk.Entry(file_frame)
-entry2.place(rely=0.70, relx=0.30)
+entry2.place(rely=0.62, relx=0.30)
 
 # The file/file path text
 label_file = ttk.Label(file_frame, text="No File Selected")
@@ -85,11 +93,11 @@ treescrolly.pack(side="right", fill="y") # make the scrollbar fill the y axis of
 tv2 = ttk.Treeview(frame3)
 tv2.place(relheight=1, relwidth=1) # set the height and width of the widget to 100% of its container (frame1).
 
-treescrolly = tk.Scrollbar(frame3, orient="vertical", command=tv2.yview) # command means update the yaxis view of the widget
-treescrollx = tk.Scrollbar(frame3, orient="horizontal", command=tv2.xview) # command means update the xaxis view of the widget
-tv2.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set) # assign the scrollbars to the Treeview Widget
-treescrollx.pack(side="bottom", fill="x") # make the scrollbar fill the x axis of the Treeview widget
-treescrolly.pack(side="right", fill="y") # make the scrollbar fill the y axis of the Treeview widget
+treescrolly2 = tk.Scrollbar(frame3, orient="vertical", command=tv2.yview) # command means update the yaxis view of the widget
+treescrollx2 = tk.Scrollbar(frame3, orient="horizontal", command=tv2.xview) # command means update the xaxis view of the widget
+tv2.configure(xscrollcommand=treescrollx2.set, yscrollcommand=treescrolly2.set) # assign the scrollbars to the Treeview Widget
+treescrollx2.pack(side="bottom", fill="x") # make the scrollbar fill the x axis of the Treeview widget
+treescrolly2.pack(side="right", fill="y") # make the scrollbar fill the y axis of the Treeview widget
 
 output = []
 
@@ -161,7 +169,15 @@ def Search():
     data1 = entry1.get()
     data2 = entry2.get()
 
-    if data1 != "":
+    if data1 != "" and data2 != "":
+        df_filter = df.loc[df['Dst Port'] == int(data1)]
+        df_filter = df_filter.loc[df_filter['Protocol'] == int(data2)]
+        df_rows = df_filter.to_numpy().tolist()  # turns the dataframe into a list of lists
+        for row in df_rows:
+            tv1.insert("", "end",
+                       values=row)  # inserts each list into the treeview. For parameters see https://docs.python.org/3/library/tkinter.ttk.html#tkinter.ttk.Treeview.insert
+
+    elif data1 != "":
         df_filter = df.loc[df['Dst Port'] == int(data1)]
         df_rows = df_filter.to_numpy().tolist()  # turns the dataframe into a list of lists
         for row in df_rows:
@@ -206,10 +222,10 @@ def Pie_chart():
     ax.set_title('Number of Each Cyber Attack', fontsize=22)  # Title of Chart
 
     # Plot of Pie Chart (Consist of All attacks)
-    ax.pie(count, labels=attack, autopct=lambda p: '({:.0f})'.format(p * sum(count) / 100), startangle=90)
+    ax.pie(count, autopct=lambda p: '({:.0f})'.format(p * sum(count) / 100), startangle=90)
 
     ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
-    plt.legend()  # Legend for Pie and Donut Chart
+    plt.legend(labels=attack)  # Legend for Pie and Donut Chart
     plt.show()
 
 def Donut_chart():
@@ -226,7 +242,7 @@ def Donut_chart():
     ax.set_title('Number of Each Cyber Attack', fontsize=22)  # Title of Chart
 
     # Plot of Donut Chart (Consist of Top 5 attacks)
-    ax.pie(count[:5], labels=attack[:5], autopct=lambda p: '({:.0f})'.format(p * sum(count[:5]) / 100), startangle=90)
+    ax.pie(count[:5], autopct=lambda p: '({:.0f})'.format(p * sum(count[:5]) / 100), startangle=90)
 
     # Making Pie Chart into a Donut
     centre_circle = plt.Circle((0, 0), 0.70, fc='white')
@@ -235,7 +251,7 @@ def Donut_chart():
 
     ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
 
-    plt.legend()  # Legend for Pie and Donut Chart
+    plt.legend(labels=attack[:5])  # Legend for Pie and Donut Chart
     plt.show()
 
 def Prediction():
