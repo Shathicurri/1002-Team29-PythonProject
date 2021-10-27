@@ -9,8 +9,9 @@ import matplotlib.pyplot as plt
 
 # initalise the tkinter GUI
 root = tk.Tk()
+output = []
 
-root.title("Digital Crime Analyzer") # title of the application
+root.title("Digital Crime Analyzer")
 root.geometry("700x700") # set the root dimensions
 root.pack_propagate(False) # tells the root to not let the widgets inside it determine its size.
 root.resizable(0, 0) # makes the root window fixed in size.
@@ -103,6 +104,7 @@ output = []
 
 def File_dialog():
     """This Function will open the file explorer and assign the chosen file path to label_file"""
+    
     filename = filedialog.askopenfilename(initialdir="/",
                                           title="Select A File",
                                           filetype=(("Csv Files","*.csv"),("All Files", "*.*")))
@@ -112,6 +114,7 @@ def File_dialog():
 
 def Load_excel_data():
     """If the file selected is valid this will load the file into the Treeview"""
+    
     file_path = label_file["text"]
     try:
         excel_filename = r"{}".format(file_path)
@@ -141,6 +144,8 @@ def Load_excel_data():
 
 
 def Export_excel_data():
+    """This function will get the data from the Treeview and write it in CSV format, allowing the file to be saved in your file explorer."""
+    
     if len(tv2.get_children()) < 1:
         messagebox.showerror("No Data!", "No data available to export")
         return None
@@ -156,11 +161,15 @@ def Export_excel_data():
 
 
 def clear_data():
+    """"This function will clear the Treeview"""
+    
     tv1.delete(*tv1.get_children())
     return None
 
 
 def Search():
+    """"This function will search according to the text from the entrybox"""
+    
     clear_data()
 
     df = pd.read_csv(label_file["text"])
@@ -193,9 +202,12 @@ def Search():
 
 
 def Bar_Graph():
+    """"This function plots the bar graph as well as displays it"""
+    
     graph_data = pd.DataFrame(np.array(output))
     graph_data.columns = ['Prediction', 'Protocol', 'Dst Port',  'Timestamp']
 
+    # Counting each row and converting to list
     x_axis = graph_data['Dst Port'].value_counts().keys().tolist()
     y_axsis = graph_data['Dst Port'].value_counts().tolist()
 
@@ -208,12 +220,16 @@ def Bar_Graph():
 
 
 def Pie_chart():
+    """This function plots the pie chart as well as displays it"""
+    
     graph_data = pd.DataFrame(np.array(output))
     graph_data.columns = ['Prediction', 'Protocol', 'Dst Port', 'Timestamp']
-
+    
+    # Excluded Benign from the attacks
     exclude = ['Benign']
     newdf = graph_data[~graph_data.Prediction.isin(exclude)]
-
+    
+    # Counting each row and converting to list
     attack = newdf['Prediction'].value_counts().keys().tolist()
     count = newdf['Prediction'].value_counts().tolist()
 
@@ -228,12 +244,16 @@ def Pie_chart():
     plt.show()
 
 def Donut_chart():
+    """This function plots the donut chart as well as displays it"""
+    
     graph_data = pd.DataFrame(np.array(output))
     graph_data.columns = ['Prediction', 'Protocol', 'Dst Port', 'Timestamp']
 
+    # Excluded Benign from the attacks
     exclude = ['Benign']
     newdf = graph_data[~graph_data.Prediction.isin(exclude)]
-
+    
+    # Counting each row and converting to list
     attack = newdf['Prediction'].value_counts().keys().tolist()
     count = newdf['Prediction'].value_counts().tolist()
 
@@ -254,6 +274,7 @@ def Donut_chart():
     plt.show()
 
 def Prediction():
+    """"This function load the model from Tensorflow and display it"""
 
     atks = {
         0:'Benign',
