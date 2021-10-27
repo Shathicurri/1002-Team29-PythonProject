@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 
 # initalise the tkinter GUI
 root = tk.Tk()
-output = []
 
 root.title("Digital Crime Analyzer")
 root.geometry("700x700") # set the root dimensions
