@@ -29,7 +29,7 @@ def Prediction(label_file, tv2):
     timestamp = data.pop('Timestamp')
 
     # Run the current data through the model to get the predictions
-    model = load_model("model/training_3.h5")
+    model = load_model("model/training_2.h5")
     model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     predictions = model.predict(data.values)
 
