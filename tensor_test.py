@@ -33,4 +33,4 @@ model.compile(optimizer=Adam(learning_rate=0.001), loss='sparse_categorical_cros
 model.fit(train_samples, train_labels, batch_size=75, epochs=600, verbose=1)
 
 # This will save the model that was used to train
-model.save("model/training_3.h5")
+model.save("model/training_2.h5")
