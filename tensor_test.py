@@ -5,13 +5,13 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 
 # Read the file to get the values for the labels
-data = pd.read_csv('Book3.csv')
+data = pd.read_csv('Sample Data/TrainingDataSet1.csv')
 data = pd.DataFrame(data)
 label = data.pop('Label')
 title = label.pop(0)
 
 # Read the file to get the dataset for the samples
-data2 = pd.read_csv('Book4.csv')
+data2 = pd.read_csv('Sample Data/TrainingDataSet2.csv')
 
 # Converts the lists to a tensor object
 train_labels = tf.convert_to_tensor(label)
